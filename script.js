@@ -22,6 +22,17 @@ const displayController = (function() {
     </div>
     <button class="play-btn">Play!</button>`
 
+    const stateTwo = `
+    <div id="0" class="box"></div>
+    <div id="1" class="box"></div>
+    <div id="2" class="box"></div>
+    <div id="3" class="box"></div>
+    <div id="4" class="box"></div>
+    <div id="5" class="box"></div>
+    <div id="6" class="box"></div>
+    <div id="7" class="box"></div>
+    <div id="8" class="box"></div>`
+
     const render = function() {
         mainContainer.innerHTML = "";
         if (currentState === 1) {
@@ -30,7 +41,7 @@ const displayController = (function() {
                 playBtn.addEventListener("click", changeState);
         }
         else if (currentState === 2) {
-            
+            mainContainer.innerHTML = stateTwo;
         }
         else {
 

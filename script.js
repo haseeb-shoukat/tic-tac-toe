@@ -1,7 +1,7 @@
 const gameLogic = (function() {
 
     let currentState = 1;
-    const mainContainer = document.querySelector(".main-container")
+    const mainContainer = document.querySelector(".main-container");
 
     const gameBoard = (function() {
         const boardContents = ["","","","","","","","",""];
@@ -26,27 +26,62 @@ const gameLogic = (function() {
 
     const runGame = (p1, p2) => {
         const playerOne = Player(p1, "p1");
-        const playerTwo = Player(p2, "p2");
-        const boxes = document.querySelectorAll(".box"); 
-        const boardContents = gameBoard.boardContents
+        const playerTwo = Player(p2, "p2"); 
+        const board = gameBoard.boardContents
+        const boxes = document.querySelectorAll(".box");
+        let gameStatus = "running";
+
         let currentTurn = playerOne;
 
         boxes.forEach(box => {
             box.addEventListener("click", () => {
-                if (boardContents[box.id] === "") {
-                    
-                    gameBoard.addToBoard(box.id, currentTurn.avatar);
-                    console.log(boardContents)
+                if (board[box.id] === "") {
 
-                    if (currentTurn === playerOne) {
-                        currentTurn = playerTwo;
-                    }
-                    else {
-                        currentTurn = playerOne;
-                    }
+                    gameBoard.addToBoard(box.id, currentTurn.avatar);
+                    updateDisplayBoard();
+                    gameStatusCheck();
+                    updateTurn();
                 }
             })
         })
+
+        const updateDisplayBoard = function() {
+            boxes.forEach(box => {
+                box.innerHTML = board[box.id];
+            })
+        }
+
+        const updateTurn = function() {
+
+            if (currentTurn === playerOne) {
+                currentTurn = playerTwo;
+            }
+            else {
+                currentTurn = playerOne;
+            }
+        }
+
+        const gameStatusCheck = function() {
+            if (
+                ((board[0] === board[1]) && (board[1] === board[2])) ||
+                ((board[3] === board[4]) && (board[4] === board[5])) ||
+                ((board[6] === board[7]) && (board[7] === board[8])) ||
+                ((board[0] === board[3]) && (board[3] === board[6])) ||
+                ((board[1] === board[4]) && (board[4] === board[7])) ||
+                ((board[2] === board[5]) && (board[5] === board[8])) ||
+                ((board[0] === board[4]) && (board[4] === board[8])) ||
+                ((board[2] === board[4]) && (board[4] === board[6]))) {
+                
+                    gameStatus = `${currentTurn}, wins`;
+                    currentState = 3;
+                    displayController.render();
+            }
+            else if (!board.includes("")) {
+                gameStatus = "draw";
+                currentState = 3;
+                displayController.render();
+            };
+        }
         
     }
 

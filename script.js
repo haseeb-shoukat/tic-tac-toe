@@ -1,15 +1,19 @@
 const gameLogic = (function() {
 
     let currentState = 1;
-    const mainContainer = document.querySelector(".main-container");
+    let mainContainer = document.querySelector(".main-container");
+    let gameStatus = "running";
 
     const gameBoard = (function() {
-        const boardContents = ["","","","","","","","",""];
+        let boardContents = ["","","","","","","","",""];
         const addToBoard = function(index, avatar) {
-            boardContents.splice(index, 1, avatar);
+            this.boardContents.splice(index, 1, avatar);
+        };
+        const clearBoard = function() {
+            this.boardContents = ["","","","","","","","",""];
         };
 
-        return {boardContents, addToBoard}
+        return {boardContents, addToBoard, clearBoard}
     })();
     
     const Player = function(name, role) {
@@ -29,7 +33,9 @@ const gameLogic = (function() {
         const playerTwo = Player(p2, "p2"); 
         const board = gameBoard.boardContents
         const boxes = document.querySelectorAll(".box");
-        let gameStatus = "running";
+        currentState = 2;
+        mainContainer = document.querySelector(".main-container");
+        gameStatus = "running";
 
         let currentTurn = playerOne;
 
@@ -38,8 +44,14 @@ const gameLogic = (function() {
                 if (board[box.id] === "") {
 
                     gameBoard.addToBoard(box.id, currentTurn.avatar);
+                    console.log(gameBoard.boardContents,board, box.id, currentTurn.avatar);
                     updateDisplayBoard();
-                    gameStatusCheck();
+
+                    let status = gameStatusCheck(); 
+                    if (status != "") {
+                        gameStatus = status
+                        changeState();
+                    }
                     updateTurn();
                 }
             })
@@ -63,25 +75,35 @@ const gameLogic = (function() {
 
         const gameStatusCheck = function() {
             if (
-                ((board[0] === board[1]) && (board[1] === board[2])) ||
-                ((board[3] === board[4]) && (board[4] === board[5])) ||
-                ((board[6] === board[7]) && (board[7] === board[8])) ||
-                ((board[0] === board[3]) && (board[3] === board[6])) ||
-                ((board[1] === board[4]) && (board[4] === board[7])) ||
-                ((board[2] === board[5]) && (board[5] === board[8])) ||
-                ((board[0] === board[4]) && (board[4] === board[8])) ||
-                ((board[2] === board[4]) && (board[4] === board[6]))) {
+                ((((board[0] === board[1]) && (board[1] === board[2])) ||
+                    ((board[0] === board[3]) && (board[3] === board[6])) ||
+                    ((board[0] === board[4]) && (board[4] === board[8]))) 
+                    && board[0] != "")
                 
-                    gameStatus = `${currentTurn}, wins`;
-                    currentState = 3;
-                    displayController.render();
+                ||
+                
+                ((((board[3] === board[4]) && (board[4] === board[5])) ||
+                ((board[1] === board[4]) && (board[4] === board[7])) ||
+                ((board[2] === board[4]) && (board[4] === board[6])))
+                && board[4] != "")
+                
+                ||
+
+                ((((board[6] === board[7]) && (board[7] === board[8])) ||
+                ((board[2] === board[5]) && (board[5] === board[8])))
+                && board[8] != "")) {
+                
+                    return `${currentTurn.name} Wins!`;
+
             }
             else if (!board.includes("")) {
-                gameStatus = "draw";
-                currentState = 3;
-                displayController.render();
+                return "Draw!";
+            }
+
+            else {
+                return "";
             };
-        }
+        };
         
     }
 
@@ -138,14 +160,26 @@ const gameLogic = (function() {
                 runGame(p1.value, p2.value);
             }
             else {
+                const stateThree = `
+                <div class="game-info versus">
+                    ${gameStatus}
+                </div>
+                <button type="submit" class="play-btn restart">Restart!</button>`
 
+                mainContainer.innerHTML = "";
+                mainContainer.innerHTML = stateThree;
+                gameBoard.clearBoard();
+                let restart = document.querySelector(".restart");
+                restart.addEventListener("click", () => {
+                    changeState();
+                });
             }
         };
 
         return {render}
     })();
 
-    return {displayController}
+    return {displayController, gameStatus}
         
 })();
 
